@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>মহাসিন ফার্ম - হিসাব ব্যবস্থাপনা</title>
+  <meta name="description" content="মহাসিন ফার্মের সম্পূর্ণ হিসাব ব্যবস্থাপনা সিস্টেম" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="page-loader">
+    <div class="loader-content">
+      <div class="loader-logo">🌾</div>
+      <div class="loader-text">মহাসিন ফার্ম</div>
+      <div class="loader-spinner"></div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <span class="brand-icon">🌾</span>
+        <div class="brand-text">
+          <span class="brand-name">মহাসিন ফার্ম</span>
+          <span class="brand-sub">হিসাব ব্যবস্থাপনা</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-close" aria-label="মেনু বন্ধ">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">বিভাগসমূহ</div>
+      <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-text">ড্যাশবোর্ড</span>
+      </a>
+      <a href="#" class="nav-item" data-page="cow" id="nav-cow">
+        <span class="nav-icon">🐄</span>
+        <span class="nav-text">গরুর হিসাব</span>
+      </a>
+      <a href="#" class="nav-item" data-page="goat" id="nav-goat">
+        <span class="nav-icon">🐐</span>
+        <span class="nav-text">ছাগলের হিসাব</span>
+      </a>
+      <a href="#" class="nav-item" data-page="chicken" id="nav-chicken">
+        <span class="nav-icon">🐔</span>
+        <span class="nav-text">মুরগির হিসাব</span>
+      </a>
+      <a href="#" class="nav-item" data-page="fish" id="nav-fish">
+        <span class="nav-icon">🐟</span>
+        <span class="nav-text">মাছের হিসাব</span>
+      </a>
+      <a href="#" class="nav-item" data-page="agriculture" id="nav-agriculture">
+        <span class="nav-icon">🌾</span>
+        <span class="nav-text">কৃষি হিসাব</span>
+      </a>
+      <a href="#" class="nav-item" data-page="other" id="nav-other">
+        <span class="nav-icon">📋</span>
+        <span class="nav-text">অন্যান্য হিসাব</span>
+      </a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-item" data-page="summary" id="nav-summary">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">মোট হিসাব সারসংক্ষেপ</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-date" id="sidebar-date"></div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <button class="menu-btn" id="menu-toggle" aria-label="মেনু">☰</button>
+      <div class="topbar-title" id="page-title">ড্যাশবোর্ড</div>
+      <div class="topbar-right">
+        <div class="time-badge" id="live-time"></div>
+        <a href="https://docs.google.com/spreadsheets/d/18mHjHmAzy7ifoNdFNDycjb3f6ms6ZHyb8Las6N4EBG0/edit" target="_blank" class="sheet-link-btn" title="Google Sheet খুলুন">
+          <span>📊</span> শিট দেখুন
+        </a>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <section class="page active" id="page-dashboard">
+        <div class="dashboard-hero">
+          <div class="hero-content">
+            <h1 class="hero-title">স্বাগতম, মহাসিন ফার্মে!</h1>
+            <p class="hero-subtitle">আপনার ফার্মের সম্পূর্ণ হিসাব এক জায়গায়</p>
+          </div>
+          <div class="hero-art">🌾</div>
+        </div>
+
+        <div class="stats-grid">
+          <!-- COW CARD -->
+          <div class="stat-card stat-cow">
+            <div class="stat-top">
+              <div class="stat-icon">🐄</div>
+              <div class="stat-info">
+                <div class="stat-label">গরুর হিসাব</div>
+                <div class="stat-count" id="stat-cow-count">০ টি এন্ট্রি</div>
+              </div>
+            </div>
+            <div class="stat-actions">
+              <button class="stat-btn-entry" onclick="navigateTo('cow','entry')">📝 ডেটা এন্ট্রি</button>
+              <button class="stat-btn-view" onclick="navigateTo('cow','view')">👁️ ডেটা দেখুন</button>
+            </div>
+          </div>
+          <!-- GOAT CARD -->
+          <div class="stat-card stat-goat">
+            <div class="stat-top">
+              <div class="stat-icon">🐐</div>
+              <div class="stat-info">
+                <div class="stat-label">ছাগলের হিসাব</div>
+                <div class="stat-count" id="stat-goat-count">০ টি এন্ট্রি</div>
+              </div>
+            </div>
+            <div class="stat-actions">
+              <button class="stat-btn-entry" onclick="navigateTo('goat','entry')">📝 ডেটা এন্ট্রি</button>
+              <button class="stat-btn-view" onclick="navigateTo('goat','view')">👁️ ডেটা দেখুন</button>
+            </div>
+          </div>
+          <!-- CHICKEN CARD -->
+          <div class="stat-card stat-chicken">
+            <div class="stat-top">
+              <div class="stat-icon">🐔</div>
+              <div class="stat-info">
+                <div class="stat-label">মুরগির হিসাব</div>
+                <div class="stat-count" id="stat-chicken-count">০ টি এন্ট্রি</div>
+              </div>
+            </div>
+            <div class="stat-actions">
+              <button class="stat-btn-entry" onclick="navigateTo('chicken','entry')">📝 ডেটা এন্ট্রি</button>
+              <button class="stat-btn-view" onclick="navigateTo('chicken','view')">👁️ ডেটা দেখুন</button>
+            </div>
+          </div>
+          <!-- FISH CARD -->
+          <div class="stat-card stat-fish">
+            <div class="stat-top">
+              <div class="stat-icon">🐟</div>
+              <div class="stat-info">
+                <div class="stat-label">মাছের হিসাব</div>
+                <div class="stat-count" id="stat-fish-count">০ টি এন্ট্রি</div>
+              </div>
+            </div>
+            <div class="stat-actions">
+              <button class="stat-btn-entry" onclick="navigateTo('fish','entry')">📝 ডেটা এন্ট্রি</button>
+              <button class="stat-btn-view" onclick="navigateTo('fish','view')">👁️ ডেটা দেখুন</button>
+            </div>
+          </div>
+          <!-- AGRICULTURE CARD -->
+          <div class="stat-card stat-agriculture">
+            <div class="stat-top">
+              <div class="stat-icon">🌾</div>
+              <div class="stat-info">
+                <div class="stat-label">কৃষি হিসাব</div>
+                <div class="stat-count" id="stat-agriculture-count">০ টি এন্ট্রি</div>
+              </div>
+            </div>
+            <div class="stat-actions">
+              <button class="stat-btn-entry" onclick="navigateTo('agriculture','entry')">📝 ডেটা এন্ট্রি</button>
+              <button class="stat-btn-view" onclick="navigateTo('agriculture','view')">👁️ ডেটা দেখুন</button>
+            </div>
+          </div>
+          <!-- OTHER CARD -->
+          <div class="stat-card stat-other">
+            <div class="stat-top">
+              <div class="stat-icon">📋</div>
+              <div class="stat-info">
+                <div class="stat-label">অন্যান্য হিসাব</div>
+                <div class="stat-count" id="stat-other-count">০ টি এন্ট্রি</div>
+              </div>
+            </div>
+            <div class="stat-actions">
+              <button class="stat-btn-entry" onclick="navigateTo('other','entry')">📝 ডেটা এন্ট্রি</button>
+              <button class="stat-btn-view" onclick="navigateTo('other','view')">👁️ ডেটা দেখুন</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-summary-row">
+          <div class="summary-card">
+            <div class="summary-card-title">📊 মোট আয় (এই মাসে)</div>
+            <div class="summary-card-value income" id="dash-total-income">৳ ০</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-card-title">💸 মোট ব্যয় (এই মাসে)</div>
+            <div class="summary-card-value expense" id="dash-total-expense">৳ ০</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-card-title">💰 মোট লাভ/লোকসান</div>
+            <div class="summary-card-value profit" id="dash-total-profit">৳ ০</div>
+          </div>
+        </div>
+
+        <div class="setup-banner" id="setup-banner">
+          <div class="setup-icon">⚙️</div>
+          <div class="setup-text">
+            <strong>প্রথমে Apps Script সংযুক্ত করুন</strong>
+            <p>Google Sheet-এ ডেটা পাঠাতে নিচের বাটনে ক্লিক করে Apps Script URL সেট করুন</p>
+          </div>
+          <button class="setup-btn" onclick="openSettings()">সেটআপ করুন</button>
+        </div>
+      </section>
+
+      <!-- ===== COW PAGE ===== -->
+      <section class="page" id="page-cow">
+        <div class="page-header">
+          <div class="page-header-icon">🐄</div>
+          <div>
+            <h2 class="page-heading">গরুর হিসাব</h2>
+            <p class="page-subheading">গরুর দৈনিক আয়-ব্যয়ের তথ্য</p>
+          </div>
+        </div>
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tab-btn-cow-entry" onclick="switchTab('cow','entry')">📝 ডেটা এন্ট্রি</button>
+          <button class="tab-btn" id="tab-btn-cow-view" onclick="switchTab('cow','view')">👁️ ডেটা দেখুন</button>
+          <button class="tab-btn" id="tab-btn-cow-report" onclick="switchTab('cow','report')">💰 আয় ও ব্যয়</button>
+        </div>
+        <!-- Entry Tab -->
+        <div class="tab-pane active" id="tab-pane-cow-entry">
+          <div class="form-card">
+            <form id="form-cow" onsubmit="submitForm(event,'cow')">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="cow-date">📅 তারিখ</label>
+                  <input type="date" id="cow-date" name="date" required />
+                </div>
+                <div class="form-group">
+                  <label for="cow-count">🐄 গরুর সংখ্যা</label>
+                  <input type="number" id="cow-count" name="cow_count" placeholder="যেমন: ৫" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cow-milk">🥛 দুধ উৎপাদন (লিটার)</label>
+                  <input type="number" id="cow-milk" name="milk_production" placeholder="যেমন: ২০" min="0" step="0.1" />
+                </div>
+                <div class="form-group">
+                  <label for="cow-milk-price">💵 দুধ বিক্রয় মূল্য (৳)</label>
+                  <input type="number" id="cow-milk-price" name="milk_price" placeholder="যেমন: ১২০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cow-food">🌿 খাবার খরচ (৳)</label>
+                  <input type="number" id="cow-food" name="food_cost" placeholder="যেমন: ৫০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cow-medicine">💊 চিকিৎসা খরচ (৳)</label>
+                  <input type="number" id="cow-medicine" name="medicine_cost" placeholder="যেমন: ২০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cow-buy-count">🛒 গরু কেনা (সংখ্যা)</label>
+                  <input type="number" id="cow-buy-count" name="buy_count" placeholder="যেমন: ১" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cow-buy-price">💰 গরু কেনার মূল্য (৳)</label>
+                  <input type="number" id="cow-buy-price" name="buy_price" placeholder="যেমন: ৮০০০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cow-sell-count">🤝 গরু বিক্রি (সংখ্যা)</label>
+                  <input type="number" id="cow-sell-count" name="sell_count" placeholder="যেমন: ১" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cow-sell-price">💵 গরু বিক্রির মূল্য (৳)</label>
+                  <input type="number" id="cow-sell-price" name="sell_price" placeholder="যেমন: ১০০০০০" min="0" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="cow-notes">📝 মন্তব্য</label>
+                  <textarea id="cow-notes" name="notes" placeholder="অতিরিক্ত তথ্য..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="reset" class="btn-secondary">পরিষ্কার করুন</button>
+                <button type="submit" class="btn-primary" id="submit-cow">
+                  <span class="btn-text">📤 Google Sheet-এ সংরক্ষণ করুন</span>
+                  <span class="btn-loader" style="display:none">⏳ সংরক্ষণ হচ্ছে...</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- View Tab -->
+        <div class="tab-pane" id="tab-pane-cow-view">
+          <div class="view-toolbar">
+            <input class="view-search" type="text" placeholder="🔍 তারিখ বা মন্তব্য দিয়ে খুঁজুন..." oninput="filterTable('cow', this.value)" />
+            <button class="btn-export" onclick="exportCSV('cow')">⬇️ CSV ডাউনলোড</button>
+          </div>
+          <div class="view-table-wrap">
+            <table class="view-table" id="view-table-cow">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>তারিখ</th>
+                  <th>গরুর সংখ্যা</th>
+                  <th>দুধ (লিটার)</th>
+                  <th>দুধ বিক্রয় (৳)</th>
+                  <th>খাবার খরচ (৳)</th>
+                  <th>চিকিৎসা (৳)</th>
+                  <th>কেনা (টি)</th>
+                  <th>কেনার মূল্য (৳)</th>
+                  <th>বিক্রি (টি)</th>
+                  <th>বিক্রির মূল্য (৳)</th>
+                  <th>আয় (৳)</th>
+                  <th>ব্যয় (৳)</th>
+                  <th>মন্তব্য</th>
+                  <th>মুছুন</th>
+                </tr>
+              </thead>
+              <tbody id="view-body-cow"></tbody>
+            </table>
+          </div>
+          <div class="view-summary-bar" id="view-summary-cow"></div>
+        </div>
+        <!-- Report Tab -->
+        <div class="tab-pane" id="tab-pane-cow-report">
+          <div id="report-content-cow"></div>
+        </div>
+      </section>
+
+      <!-- ===== GOAT PAGE ===== -->
+      <section class="page" id="page-goat">
+        <div class="page-header">
+          <div class="page-header-icon">🐐</div>
+          <div>
+            <h2 class="page-heading">ছাগলের হিসাব</h2>
+            <p class="page-subheading">ছাগলের দৈনিক আয়-ব্যয়ের তথ্য</p>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tab-btn-goat-entry" onclick="switchTab('goat','entry')">📝 ডেটা এন্ট্রি</button>
+          <button class="tab-btn" id="tab-btn-goat-view" onclick="switchTab('goat','view')">👁️ ডেটা দেখুন</button>
+          <button class="tab-btn" id="tab-btn-goat-report" onclick="switchTab('goat','report')">💰 আয় ও ব্যয়</button>
+        </div>
+        <div class="tab-pane active" id="tab-pane-goat-entry">
+          <div class="form-card">
+            <form id="form-goat" onsubmit="submitForm(event,'goat')">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="goat-date">📅 তারিখ</label>
+                  <input type="date" id="goat-date" name="date" required />
+                </div>
+                <div class="form-group">
+                  <label for="goat-count">🐐 ছাগলের সংখ্যা</label>
+                  <input type="number" id="goat-count" name="goat_count" placeholder="যেমন: ১০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="goat-food">🌿 খাবার খরচ (৳)</label>
+                  <input type="number" id="goat-food" name="food_cost" placeholder="যেমন: ৩০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="goat-medicine">💊 চিকিৎসা খরচ (৳)</label>
+                  <input type="number" id="goat-medicine" name="medicine_cost" placeholder="যেমন: ১০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="goat-buy-count">🛒 ছাগল কেনা (সংখ্যা)</label>
+                  <input type="number" id="goat-buy-count" name="buy_count" placeholder="যেমন: ২" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="goat-buy-price">💰 ছাগল কেনার মূল্য (৳)</label>
+                  <input type="number" id="goat-buy-price" name="buy_price" placeholder="যেমন: ১৫০০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="goat-sell-count">🤝 ছাগল বিক্রি (সংখ্যা)</label>
+                  <input type="number" id="goat-sell-count" name="sell_count" placeholder="যেমন: ১" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="goat-sell-price">💵 ছাগল বিক্রির মূল্য (৳)</label>
+                  <input type="number" id="goat-sell-price" name="sell_price" placeholder="যেমন: ১২০০০" min="0" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="goat-notes">📝 মন্তব্য</label>
+                  <textarea id="goat-notes" name="notes" placeholder="অতিরিক্ত তথ্য..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="reset" class="btn-secondary">পরিষ্কার করুন</button>
+                <button type="submit" class="btn-primary" id="submit-goat">
+                  <span class="btn-text">📤 Google Sheet-এ সংরক্ষণ করুন</span>
+                  <span class="btn-loader" style="display:none">⏳ সংরক্ষণ হচ্ছে...</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-pane-goat-view">
+          <div class="view-toolbar">
+            <input class="view-search" type="text" placeholder="🔍 তারিখ বা মন্তব্য দিয়ে খুঁজুন..." oninput="filterTable('goat', this.value)" />
+            <button class="btn-export" onclick="exportCSV('goat')">⬇️ CSV ডাউনলোড</button>
+          </div>
+          <div class="view-table-wrap">
+            <table class="view-table" id="view-table-goat">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>তারিখ</th>
+                  <th>ছাগলের সংখ্যা</th>
+                  <th>খাবার খরচ (৳)</th>
+                  <th>চিকিৎসা (৳)</th>
+                  <th>কেনা (টি)</th>
+                  <th>কেনার মূল্য (৳)</th>
+                  <th>বিক্রি (টি)</th>
+                  <th>বিক্রির মূল্য (৳)</th>
+                  <th>আয় (৳)</th>
+                  <th>ব্যয় (৳)</th>
+                  <th>মন্তব্য</th>
+                  <th>মুছুন</th>
+                </tr>
+              </thead>
+              <tbody id="view-body-goat"></tbody>
+            </table>
+          </div>
+          <div class="view-summary-bar" id="view-summary-goat"></div>
+        </div>
+        <div class="tab-pane" id="tab-pane-goat-report">
+          <div id="report-content-goat"></div>
+        </div>
+      </section>
+
+      <!-- ===== CHICKEN PAGE ===== -->
+      <section class="page" id="page-chicken">
+        <div class="page-header">
+          <div class="page-header-icon">🐔</div>
+          <div>
+            <h2 class="page-heading">মুরগির হিসাব</h2>
+            <p class="page-subheading">মুরগির দৈনিক আয়-ব্যয়ের তথ্য</p>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tab-btn-chicken-entry" onclick="switchTab('chicken','entry')">📝 ডেটা এন্ট্রি</button>
+          <button class="tab-btn" id="tab-btn-chicken-view" onclick="switchTab('chicken','view')">👁️ ডেটা দেখুন</button>
+          <button class="tab-btn" id="tab-btn-chicken-report" onclick="switchTab('chicken','report')">💰 আয় ও ব্যয়</button>
+        </div>
+        <div class="tab-pane active" id="tab-pane-chicken-entry">
+          <div class="form-card">
+            <form id="form-chicken" onsubmit="submitForm(event,'chicken')">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="chicken-date">📅 তারিখ</label>
+                  <input type="date" id="chicken-date" name="date" required />
+                </div>
+                <div class="form-group">
+                  <label for="chicken-count">🐔 মুরগির সংখ্যা</label>
+                  <input type="number" id="chicken-count" name="chicken_count" placeholder="যেমন: ৫০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="chicken-eggs">🥚 ডিম উৎপাদন (হালি)</label>
+                  <input type="number" id="chicken-eggs" name="eggs_produced" placeholder="যেমন: ১০" min="0" step="0.5" />
+                </div>
+                <div class="form-group">
+                  <label for="chicken-egg-price">💵 ডিম বিক্রয় মূল্য (৳)</label>
+                  <input type="number" id="chicken-egg-price" name="egg_price" placeholder="যেমন: ৪০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="chicken-food">🌾 খাবার খরচ (৳)</label>
+                  <input type="number" id="chicken-food" name="food_cost" placeholder="যেমন: ৫০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="chicken-medicine">💊 ওষুধ খরচ (৳)</label>
+                  <input type="number" id="chicken-medicine" name="medicine_cost" placeholder="যেমন: ১০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="chicken-sell-count">🤝 মুরগি বিক্রি (সংখ্যা)</label>
+                  <input type="number" id="chicken-sell-count" name="sell_count" placeholder="যেমন: ৫" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="chicken-sell-price">💵 মুরগি বিক্রির মূল্য (৳)</label>
+                  <input type="number" id="chicken-sell-price" name="sell_price" placeholder="যেমন: ২৫০০" min="0" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="chicken-notes">📝 মন্তব্য</label>
+                  <textarea id="chicken-notes" name="notes" placeholder="অতিরিক্ত তথ্য..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="reset" class="btn-secondary">পরিষ্কার করুন</button>
+                <button type="submit" class="btn-primary" id="submit-chicken">
+                  <span class="btn-text">📤 Google Sheet-এ সংরক্ষণ করুন</span>
+                  <span class="btn-loader" style="display:none">⏳ সংরক্ষণ হচ্ছে...</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-pane-chicken-view">
+          <div class="view-toolbar">
+            <input class="view-search" type="text" placeholder="🔍 তারিখ বা মন্তব্য দিয়ে খুঁজুন..." oninput="filterTable('chicken', this.value)" />
+            <button class="btn-export" onclick="exportCSV('chicken')">⬇️ CSV ডাউনলোড</button>
+          </div>
+          <div class="view-table-wrap">
+            <table class="view-table" id="view-table-chicken">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>তারিখ</th>
+                  <th>মুরগি</th>
+                  <th>ডিম (হালি)</th>
+                  <th>ডিম বিক্রয় (৳)</th>
+                  <th>খাবার (৳)</th>
+                  <th>ওষুধ (৳)</th>
+                  <th>বিক্রি (টি)</th>
+                  <th>বিক্রির মূল্য (৳)</th>
+                  <th>আয় (৳)</th>
+                  <th>ব্যয় (৳)</th>
+                  <th>মন্তব্য</th>
+                  <th>মুছুন</th>
+                </tr>
+              </thead>
+              <tbody id="view-body-chicken"></tbody>
+            </table>
+          </div>
+          <div class="view-summary-bar" id="view-summary-chicken"></div>
+        </div>
+        <div class="tab-pane" id="tab-pane-chicken-report">
+          <div id="report-content-chicken"></div>
+        </div>
+      </section>
+
+      <!-- ===== FISH PAGE ===== -->
+      <section class="page" id="page-fish">
+        <div class="page-header">
+          <div class="page-header-icon">🐟</div>
+          <div>
+            <h2 class="page-heading">মাছের হিসাব</h2>
+            <p class="page-subheading">মাছের দৈনিক আয়-ব্যয়ের তথ্য</p>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tab-btn-fish-entry" onclick="switchTab('fish','entry')">📝 ডেটা এন্ট্রি</button>
+          <button class="tab-btn" id="tab-btn-fish-view" onclick="switchTab('fish','view')">👁️ ডেটা দেখুন</button>
+          <button class="tab-btn" id="tab-btn-fish-report" onclick="switchTab('fish','report')">💰 আয় ও ব্যয়</button>
+        </div>
+        <div class="tab-pane active" id="tab-pane-fish-entry">
+          <div class="form-card">
+            <form id="form-fish" onsubmit="submitForm(event,'fish')">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="fish-date">📅 তারিখ</label>
+                  <input type="date" id="fish-date" name="date" required />
+                </div>
+                <div class="form-group">
+                  <label for="fish-pond">🏊 পুকুর/ঘেরের নাম</label>
+                  <input type="text" id="fish-pond" name="pond_name" placeholder="যেমন: উত্তর পুকুর" />
+                </div>
+                <div class="form-group">
+                  <label for="fish-species">🐟 মাছের প্রজাতি</label>
+                  <input type="text" id="fish-species" name="fish_species" placeholder="যেমন: রুই, কাতলা" />
+                </div>
+                <div class="form-group">
+                  <label for="fish-quantity">⚖️ মাছের পরিমাণ (কেজি)</label>
+                  <input type="number" id="fish-quantity" name="fish_quantity" placeholder="যেমন: ৫০" min="0" step="0.1" />
+                </div>
+                <div class="form-group">
+                  <label for="fish-cost">💸 খাবার/ওষুধ খরচ (৳)</label>
+                  <input type="number" id="fish-cost" name="food_medicine_cost" placeholder="যেমন: ৮০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="fish-sell-qty">🤝 বিক্রয় পরিমাণ (কেজি)</label>
+                  <input type="number" id="fish-sell-qty" name="sell_quantity" placeholder="যেমন: ২০" min="0" step="0.1" />
+                </div>
+                <div class="form-group">
+                  <label for="fish-sell-price">💵 বিক্রয় মূল্য (৳)</label>
+                  <input type="number" id="fish-sell-price" name="sell_price" placeholder="যেমন: ৩০০০" min="0" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="fish-notes">📝 মন্তব্য</label>
+                  <textarea id="fish-notes" name="notes" placeholder="অতিরিক্ত তথ্য..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="reset" class="btn-secondary">পরিষ্কার করুন</button>
+                <button type="submit" class="btn-primary" id="submit-fish">
+                  <span class="btn-text">📤 Google Sheet-এ সংরক্ষণ করুন</span>
+                  <span class="btn-loader" style="display:none">⏳ সংরক্ষণ হচ্ছে...</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-pane-fish-view">
+          <div class="view-toolbar">
+            <input class="view-search" type="text" placeholder="🔍 তারিখ বা পুকুরের নাম দিয়ে খুঁজুন..." oninput="filterTable('fish', this.value)" />
+            <button class="btn-export" onclick="exportCSV('fish')">⬇️ CSV ডাউনলোড</button>
+          </div>
+          <div class="view-table-wrap">
+            <table class="view-table" id="view-table-fish">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>তারিখ</th>
+                  <th>পুকুর/ঘের</th>
+                  <th>প্রজাতি</th>
+                  <th>পরিমাণ (কেজি)</th>
+                  <th>খাবার/ওষুধ (৳)</th>
+                  <th>বিক্রয় (কেজি)</th>
+                  <th>বিক্রয় মূল্য (৳)</th>
+                  <th>আয় (৳)</th>
+                  <th>ব্যয় (৳)</th>
+                  <th>মন্তব্য</th>
+                  <th>মুছুন</th>
+                </tr>
+              </thead>
+              <tbody id="view-body-fish"></tbody>
+            </table>
+          </div>
+          <div class="view-summary-bar" id="view-summary-fish"></div>
+        </div>
+        <div class="tab-pane" id="tab-pane-fish-report">
+          <div id="report-content-fish"></div>
+        </div>
+      </section>
+
+      <!-- ===== AGRICULTURE PAGE ===== -->
+      <section class="page" id="page-agriculture">
+        <div class="page-header">
+          <div class="page-header-icon">🌾</div>
+          <div>
+            <h2 class="page-heading">কৃষি হিসাব</h2>
+            <p class="page-subheading">কৃষি কাজের আয়-ব্যয়ের তথ্য</p>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tab-btn-agriculture-entry" onclick="switchTab('agriculture','entry')">📝 ডেটা এন্ট্রি</button>
+          <button class="tab-btn" id="tab-btn-agriculture-view" onclick="switchTab('agriculture','view')">👁️ ডেটা দেখুন</button>
+          <button class="tab-btn" id="tab-btn-agriculture-report" onclick="switchTab('agriculture','report')">💰 আয় ও ব্যয়</button>
+        </div>
+        <div class="tab-pane active" id="tab-pane-agriculture-entry">
+          <div class="form-card">
+            <form id="form-agriculture" onsubmit="submitForm(event,'agriculture')">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="agri-date">📅 তারিখ</label>
+                  <input type="date" id="agri-date" name="date" required />
+                </div>
+                <div class="form-group">
+                  <label for="agri-crop">🌱 ফসলের নাম</label>
+                  <input type="text" id="agri-crop" name="crop_name" placeholder="যেমন: ধান, গম" />
+                </div>
+                <div class="form-group">
+                  <label for="agri-land">📐 জমির পরিমাণ (বিঘা)</label>
+                  <input type="number" id="agri-land" name="land_size" placeholder="যেমন: ৫" min="0" step="0.1" />
+                </div>
+                <div class="form-group">
+                  <label for="agri-seed">🌰 বীজ খরচ (৳)</label>
+                  <input type="number" id="agri-seed" name="seed_cost" placeholder="যেমন: ২০০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="agri-fertilizer">🧪 সার খরচ (৳)</label>
+                  <input type="number" id="agri-fertilizer" name="fertilizer_cost" placeholder="যেমন: ৩০০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="agri-irrigation">💧 সেচ খরচ (৳)</label>
+                  <input type="number" id="agri-irrigation" name="irrigation_cost" placeholder="যেমন: ১০০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="agri-labor">👷 শ্রমিক খরচ (৳)</label>
+                  <input type="number" id="agri-labor" name="labor_cost" placeholder="যেমন: ৫০০০" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="agri-production">📦 উৎপাদন (মণ)</label>
+                  <input type="number" id="agri-production" name="production" placeholder="যেমন: ৩০" min="0" step="0.1" />
+                </div>
+                <div class="form-group">
+                  <label for="agri-sell-price">💵 বিক্রয় মূল্য (৳)</label>
+                  <input type="number" id="agri-sell-price" name="sell_price" placeholder="যেমন: ৩০০০০" min="0" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="agri-notes">📝 মন্তব্য</label>
+                  <textarea id="agri-notes" name="notes" placeholder="অতিরিক্ত তথ্য..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="reset" class="btn-secondary">পরিষ্কার করুন</button>
+                <button type="submit" class="btn-primary" id="submit-agriculture">
+                  <span class="btn-text">📤 Google Sheet-এ সংরক্ষণ করুন</span>
+                  <span class="btn-loader" style="display:none">⏳ সংরক্ষণ হচ্ছে...</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-pane-agriculture-view">
+          <div class="view-toolbar">
+            <input class="view-search" type="text" placeholder="🔍 ফসলের নাম বা তারিখ দিয়ে খুঁজুন..." oninput="filterTable('agriculture', this.value)" />
+            <button class="btn-export" onclick="exportCSV('agriculture')">⬇️ CSV ডাউনলোড</button>
+          </div>
+          <div class="view-table-wrap">
+            <table class="view-table" id="view-table-agriculture">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>তারিখ</th>
+                  <th>ফসল</th>
+                  <th>জমি (বিঘা)</th>
+                  <th>বীজ (৳)</th>
+                  <th>সার (৳)</th>
+                  <th>সেচ (৳)</th>
+                  <th>শ্রমিক (৳)</th>
+                  <th>উৎপাদন (মণ)</th>
+                  <th>বিক্রয় (৳)</th>
+                  <th>আয় (৳)</th>
+                  <th>ব্যয় (৳)</th>
+                  <th>মন্তব্য</th>
+                  <th>মুছুন</th>
+                </tr>
+              </thead>
+              <tbody id="view-body-agriculture"></tbody>
+            </table>
+          </div>
+          <div class="view-summary-bar" id="view-summary-agriculture"></div>
+        </div>
+        <div class="tab-pane" id="tab-pane-agriculture-report">
+          <div id="report-content-agriculture"></div>
+        </div>
+      </section>
+
+      <!-- ===== OTHER PAGE ===== -->
+      <section class="page" id="page-other">
+        <div class="page-header">
+          <div class="page-header-icon">📋</div>
+          <div>
+            <h2 class="page-heading">অন্যান্য হিসাব</h2>
+            <p class="page-subheading">অন্যান্য আয় ও ব্যয়ের তথ্য</p>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tab-btn-other-entry" onclick="switchTab('other','entry')">📝 ডেটা এন্ট্রি</button>
+          <button class="tab-btn" id="tab-btn-other-view" onclick="switchTab('other','view')">👁️ ডেটা দেখুন</button>
+          <button class="tab-btn" id="tab-btn-other-report" onclick="switchTab('other','report')">💰 আয় ও ব্যয়</button>
+        </div>
+        <div class="tab-pane active" id="tab-pane-other-entry">
+          <div class="form-card">
+            <form id="form-other" onsubmit="submitForm(event,'other')">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="other-date">📅 তারিখ</label>
+                  <input type="date" id="other-date" name="date" required />
+                </div>
+                <div class="form-group">
+                  <label for="other-type">📌 ধরন</label>
+                  <select id="other-type" name="type">
+                    <option value="আয়">আয়</option>
+                    <option value="ব্যয়">ব্যয়</option>
+                  </select>
+                </div>
+                <div class="form-group full-width">
+                  <label for="other-description">📄 বিবরণ</label>
+                  <input type="text" id="other-description" name="description" placeholder="যেমন: বিদ্যুৎ বিল, যন্ত্রপাতি মেরামত" required />
+                </div>
+                <div class="form-group">
+                  <label for="other-amount">💰 পরিমাণ (৳)</label>
+                  <input type="number" id="other-amount" name="amount" placeholder="যেমন: ৫০০০" min="0" required />
+                </div>
+                <div class="form-group full-width">
+                  <label for="other-notes">📝 মন্তব্য</label>
+                  <textarea id="other-notes" name="notes" placeholder="অতিরিক্ত তথ্য..." rows="3"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="reset" class="btn-secondary">পরিষ্কার করুন</button>
+                <button type="submit" class="btn-primary" id="submit-other">
+                  <span class="btn-text">📤 Google Sheet-এ সংরক্ষণ করুন</span>
+                  <span class="btn-loader" style="display:none">⏳ সংরক্ষণ হচ্ছে...</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-pane-other-view">
+          <div class="view-toolbar">
+            <input class="view-search" type="text" placeholder="🔍 বিবরণ বা তারিখ দিয়ে খুঁজুন..." oninput="filterTable('other', this.value)" />
+            <button class="btn-export" onclick="exportCSV('other')">⬇️ CSV ডাউনলোড</button>
+          </div>
+          <div class="view-table-wrap">
+            <table class="view-table" id="view-table-other">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>তারিখ</th>
+                  <th>ধরন</th>
+                  <th>বিবরণ</th>
+                  <th>পরিমাণ (৳)</th>
+                  <th>আয় (৳)</th>
+                  <th>ব্যয় (৳)</th>
+                  <th>মন্তব্য</th>
+                  <th>মুছুন</th>
+                </tr>
+              </thead>
+              <tbody id="view-body-other"></tbody>
+            </table>
+          </div>
+          <div class="view-summary-bar" id="view-summary-other"></div>
+        </div>
+        <div class="tab-pane" id="tab-pane-other-report">
+          <div id="report-content-other"></div>
+        </div>
+      </section>
+
+      <!-- ===== SUMMARY PAGE ===== -->
+      <section class="page" id="page-summary">
+        <div class="page-header">
+          <div class="page-header-icon">📊</div>
+          <div>
+            <h2 class="page-heading">মোট হিসাব সারসংক্ষেপ</h2>
+            <p class="page-subheading">সকল বিভাগের সমন্বিত আয়-ব্যয় বিশ্লেষণ</p>
+          </div>
+        </div>
+        <div class="summary-filters">
+          <button class="filter-btn active" onclick="setFilter(this,'month')">এই মাস</button>
+          <button class="filter-btn" onclick="setFilter(this,'year')">এই বছর</button>
+          <button class="filter-btn" onclick="setFilter(this,'all')">সব</button>
+        </div>
+        <div class="summary-totals">
+          <div class="total-card income-card">
+            <div class="total-icon">📈</div>
+            <div class="total-label">মোট আয়</div>
+            <div class="total-value" id="summary-income">৳ ০</div>
+          </div>
+          <div class="total-card expense-card">
+            <div class="total-icon">📉</div>
+            <div class="total-label">মোট ব্যয়</div>
+            <div class="total-value" id="summary-expense">৳ ০</div>
+          </div>
+          <div class="total-card profit-card">
+            <div class="total-icon">💰</div>
+            <div class="total-label">নিট লাভ/লোকসান</div>
+            <div class="total-value" id="summary-profit">৳ ০</div>
+          </div>
+        </div>
+        <div class="chart-section">
+          <div class="chart-card">
+            <h3 class="chart-title">বিভাগ অনুযায়ী আয়-ব্যয়</h3>
+            <canvas id="categoryChart" height="300"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">আয় বনাম ব্যয়</h3>
+            <canvas id="incomeExpenseChart" height="300"></canvas>
+          </div>
+        </div>
+        <div class="category-breakdown">
+          <h3 class="breakdown-title">বিভাগওয়ারি বিস্তারিত হিসাব</h3>
+          <div class="breakdown-table-wrapper">
+            <table class="breakdown-table">
+              <thead>
+                <tr>
+                  <th>বিভাগ</th>
+                  <th>এন্ট্রি সংখ্যা</th>
+                  <th>মোট আয় (৳)</th>
+                  <th>মোট ব্যয় (৳)</th>
+                  <th>লাভ/লোকসান (৳)</th>
+                </tr>
+              </thead>
+              <tbody id="breakdown-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ সেটআপ</h3>
+        <button class="modal-close" onclick="closeSettings()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-step">
+          <div class="step-num">১</div>
+          <div class="step-content">
+            <strong>Google Sheet খুলুন</strong>
+            <a href="https://docs.google.com/spreadsheets/d/18mHjHmAzy7ifoNdFNDycjb3f6ms6ZHyb8Las6N4EBG0/edit" target="_blank" class="step-link">Sheet খুলুন →</a>
+          </div>
+        </div>
+        <div class="settings-step">
+          <div class="step-num">২</div>
+          <div class="step-content">
+            <strong>Extensions → Apps Script এ যান</strong>
+          </div>
+        </div>
+        <div class="settings-step">
+          <div class="step-num">৩</div>
+          <div class="step-content">
+            <strong>apps-script.gs ফাইলের কোড paste করুন</strong>
+          </div>
+        </div>
+        <div class="settings-step">
+          <div class="step-num">৪</div>
+          <div class="step-content">
+            <strong>Deploy → New Deployment → Web App</strong>
+            <p>Execute as: Me &nbsp;|&nbsp; Access: Anyone → Deploy</p>
+          </div>
+        </div>
+        <div class="settings-step">
+          <div class="step-num">৫</div>
+          <div class="step-content"><strong>Web App URL নিচে paste করুন</strong></div>
+        </div>
+        <div class="form-group">
+          <label for="script-url">Apps Script Web App URL</label>
+          <input type="url" id="script-url" placeholder="https://script.google.com/macros/s/..." />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeSettings()">বাতিল</button>
+        <button class="btn-primary" onclick="saveSettings()">সংরক্ষণ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h3 class="modal-title" id="edit-modal-title">✏️ ডেটা সম্পাদনা</h3>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+      <div class="modal-body" id="edit-modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeEditModal()">বাতিল</button>
+        <button class="btn-primary" onclick="saveEditedEntry()">💾 পরিবর্তন সংরক্ষণ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal" style="max-width:380px">
+      <div class="modal-header">
+        <h3 class="modal-title">🗑️ এন্ট্রি মুছুন</h3>
+        <button class="modal-close" onclick="closeDeleteModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-secondary)">আপনি কি নিশ্চিতভাবে এই এন্ট্রিটি মুছতে চান? এই কাজটি ফেরানো যাবে না।</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeDeleteModal()">বাতিল</button>
+        <button class="btn-danger" onclick="confirmDelete()">🗑️ হ্যাঁ, মুছুন</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
