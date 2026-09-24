@@ -1,16 +1,38 @@
 // ============================================================
-// মহাসিন ফার্ম - Main Application JavaScript
+// মহাসিন ফার্ম - Main Application JavaScript (সম্পূর্ণ নতুন)
 // ============================================================
 
+// ─── CONFIG ─────────────────────────────────────────────────
 const CONFIG = {
-  scriptUrl: localStorage.getItem('mohasin_script_url') || '',
+  scriptUrl: localStorage.getItem('mohasin_script_url') || 'https://script.google.com/macros/s/AKfycbyx1mUS8v_p0_Whl7i3_9VCibOdVTlFxnsP_RpzovmJjgy_ejGcP4k1b29je9ycocJ1/exec',
   sheetId: '18mHjHmAzy7ifoNdFNDycjb3f6ms6ZHyb8Las6N4EBG0'
 };
 
+// ─── LOCAL STORAGE ───────────────────────────────────────────
 const STORE_KEY = 'mohasin_farm_data';
 let farmData = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-['cow','goat','chicken','fish','agriculture','other'].forEach(k => { if (!farmData[k]) farmData[k] = []; });
+['cow','goat','chicken','fish','agriculture','other'].forEach(k => {
+  if (!farmData[k]) farmData[k] = [];
+});
 
+function saveToLocalStorage() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(farmData));
+}
+
+// প্রতিটি entry-তে _id না থাকলে যোগ করো (পুরনো data compatibility)
+['cow','goat','chicken','fish','agriculture','other'].forEach(k => {
+  farmData[k].forEach(entry => {
+    if (!entry._id) entry._id = generateId();
+  });
+});
+saveToLocalStorage();
+
+// ─── UNIQUE ID GENERATOR ─────────────────────────────────────
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+}
+
+// ─── CATEGORIES ──────────────────────────────────────────────
 const CATEGORIES = {
   cow:         { label: 'গরুর হিসাব',     icon: '🐄', color: '#f4a01c' },
   goat:        { label: 'ছাগলের হিসাব',   icon: '🐐', color: '#a78bfa' },
@@ -20,11 +42,11 @@ const CATEGORIES = {
   other:       { label: 'অন্যান্য হিসাব', icon: '📋', color: '#f472b6' }
 };
 
-let categoryChartInstance = null;
+// ─── STATE ───────────────────────────────────────────────────
+let categoryChartInstance   = null;
 let incomeExpenseChartInstance = null;
-let currentFilter = 'month';
-const reportCharts = {}; // stores chart instances per category
-const reportFilters = {}; // stores current filter per category
+let currentFilter  = 'month';
+const reportCharts = {};
 
 // Delete state
 let pendingDeleteType  = null;
@@ -87,12 +109,10 @@ function initNavigation() {
 }
 
 function navigateTo(page, tab = 'entry') {
-  // nav highlight
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const navEl = document.getElementById('nav-' + page);
   if (navEl) navEl.classList.add('active');
 
-  // page title
   const titles = {
     dashboard: 'ড্যাশবোর্ড', cow: 'গরুর হিসাব', goat: 'ছাগলের হিসাব',
     chicken: 'মুরগির হিসাব', fish: 'মাছের হিসাব',
@@ -100,7 +120,6 @@ function navigateTo(page, tab = 'entry') {
   };
   document.getElementById('page-title').textContent = titles[page] || page;
 
-  // show page
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const pageEl = document.getElementById('page-' + page);
   if (pageEl) pageEl.classList.add('active');
@@ -108,7 +127,6 @@ function navigateTo(page, tab = 'entry') {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   closeSidebar();
 
-  // activate tab
   if (CATEGORIES[page]) switchTab(page, tab);
   if (page === 'summary') renderSummary();
 }
@@ -117,19 +135,18 @@ function navigateTo(page, tab = 'entry') {
 // TAB SWITCHING
 // ====================================================
 function switchTab(type, tab) {
-  const tabs = ['entry', 'view', 'report'];
-  tabs.forEach(t => {
+  ['entry', 'view', 'report'].forEach(t => {
     const btn  = document.getElementById('tab-btn-'  + type + '-' + t);
     const pane = document.getElementById('tab-pane-' + type + '-' + t);
     if (btn)  btn.classList.toggle('active',  t === tab);
     if (pane) pane.classList.toggle('active', t === tab);
   });
   if (tab === 'view')   renderDataView(type);
-  if (tab === 'report') renderCategoryReport(type, reportFilters[type] || 'all');
+  if (tab === 'report') renderCategoryReport(type);
 }
 
 // ====================================================
-// CATEGORY REPORT — মাস/বছর ভিত্তিক
+// CATEGORY REPORT — মাস ভিত্তিক
 // ====================================================
 const MONTH_NAMES_BN = [
   'জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন',
@@ -144,7 +161,6 @@ function renderCategoryReport(type) {
   const currentYear  = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
 
-  // Build year options: 5 years back → current year
   let yearOptions = '';
   for (let y = currentYear; y >= currentYear - 5; y--) {
     yearOptions += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
@@ -160,31 +176,23 @@ function renderCategoryReport(type) {
       <div class="rpt-picker-row">
         <div class="rpt-picker-group">
           <label>📆 মাস</label>
-          <select id="rpt-month-${type}" class="rpt-select">
-            ${monthOptions}
-          </select>
+          <select id="rpt-month-${type}" class="rpt-select">${monthOptions}</select>
         </div>
         <div class="rpt-picker-group">
           <label>🗓️ বছর</label>
-          <select id="rpt-year-${type}" class="rpt-select">
-            ${yearOptions}
-          </select>
+          <select id="rpt-year-${type}" class="rpt-select">${yearOptions}</select>
         </div>
-        <button class="btn-show-report" onclick="showMonthReport('${type}')">
-          📊 হিসাব দেখুন
-        </button>
+        <button class="btn-show-report" onclick="showMonthReport('${type}')">📊 হিসাব দেখুন</button>
       </div>
     </div>
     <div id="rpt-result-${type}"></div>
   `;
-
-  // Auto-load current month
   showMonthReport(type);
 }
 
 function showMonthReport(type) {
-  const monthEl = document.getElementById('rpt-month-' + type);
-  const yearEl  = document.getElementById('rpt-year-'  + type);
+  const monthEl  = document.getElementById('rpt-month-' + type);
+  const yearEl   = document.getElementById('rpt-year-'  + type);
   const resultEl = document.getElementById('rpt-result-' + type);
   if (!monthEl || !yearEl || !resultEl) return;
 
@@ -196,7 +204,6 @@ function showMonthReport(type) {
   const entries = farmData[type];
   const filtered = entries.filter(e => e.date && e.date.startsWith(ym));
 
-  // Totals
   let totalIncome = 0, totalExpense = 0;
   filtered.forEach(e => { totalIncome += pf(e.income); totalExpense += pf(e.expense); });
   const profit = totalIncome - totalExpense;
@@ -210,27 +217,22 @@ function showMonthReport(type) {
     return;
   }
 
-  // Build daily map for chart
   const dayMap = {};
   filtered.forEach(e => {
-    const day = e.date;
-    if (!dayMap[day]) dayMap[day] = { income: 0, expense: 0 };
-    dayMap[day].income  += pf(e.income);
-    dayMap[day].expense += pf(e.expense);
+    if (!dayMap[e.date]) dayMap[e.date] = { income: 0, expense: 0 };
+    dayMap[e.date].income  += pf(e.income);
+    dayMap[e.date].expense += pf(e.expense);
   });
-  const sortedDays   = Object.keys(dayMap).sort();
-  const dayLabels    = sortedDays.map(d => d.split('-')[2] + ' তারিখ');
-  const dayIncomes   = sortedDays.map(d => dayMap[d].income);
-  const dayExpenses  = sortedDays.map(d => dayMap[d].expense);
+  const sortedDays  = Object.keys(dayMap).sort();
+  const dayLabels   = sortedDays.map(d => d.split('-')[2] + ' তারিখ');
+  const dayIncomes  = sortedDays.map(d => dayMap[d].income);
+  const dayExpenses = sortedDays.map(d => dayMap[d].expense);
 
   resultEl.innerHTML = `
-    <!-- Month Heading -->
     <div class="rpt-month-heading">
       <span class="rpt-month-badge">📅 ${monthLabel}</span>
       <span class="rpt-entry-badge">${filtered.length} টি এন্ট্রি</span>
     </div>
-
-    <!-- Summary Cards -->
     <div class="rpt-summary-cards">
       <div class="rpt-card rpt-card-income">
         <div class="rpt-card-icon">📈</div>
@@ -253,25 +255,17 @@ function showMonthReport(type) {
         <div class="rpt-card-sub">আয় − ব্যয়</div>
       </div>
     </div>
-
-    <!-- Chart -->
     <div class="rpt-chart-row">
       <div class="rpt-chart-card" style="grid-column:1/-1">
         <div class="rpt-chart-title">📊 ${monthLabel} - দিন অনুযায়ী আয় ও ব্যয়</div>
         <canvas id="rpt-bar-${type}" height="200"></canvas>
       </div>
     </div>
-
-    <!-- Detail Table -->
     <div class="rpt-monthly-table">
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>তারিখ</th>
-            <th>মোট আয় (৳)</th>
-            <th>মোট ব্যয় (৳)</th>
-            <th>লাভ / লোকসান (৳)</th>
+            <th>#</th><th>তারিখ</th><th>মোট আয় (৳)</th><th>মোট ব্যয় (৳)</th><th>লাভ / লোকসান (৳)</th>
           </tr>
         </thead>
         <tbody>
@@ -298,7 +292,6 @@ function showMonthReport(type) {
       </table>
     </div>`;
 
-  // Draw bar chart
   setTimeout(() => {
     if (reportCharts['bar-'+type]) reportCharts['bar-'+type].destroy();
     const barCtx = document.getElementById('rpt-bar-' + type);
@@ -308,7 +301,7 @@ function showMonthReport(type) {
         data: {
           labels: dayLabels,
           datasets: [
-            { label: 'আয়', data: dayIncomes,  backgroundColor: 'rgba(46,160,67,0.75)', borderColor: '#2ea043', borderWidth: 1, borderRadius: 5 },
+            { label: 'আয়',  data: dayIncomes,  backgroundColor: 'rgba(46,160,67,0.75)',  borderColor: '#2ea043', borderWidth: 1, borderRadius: 5 },
             { label: 'ব্যয়', data: dayExpenses, backgroundColor: 'rgba(248,81,73,0.75)', borderColor: '#f85149', borderWidth: 1, borderRadius: 5 }
           ]
         },
@@ -329,7 +322,7 @@ function showMonthReport(type) {
 // DATA VIEW RENDERER
 // ====================================================
 function renderDataView(type) {
-  const tbody = document.getElementById('view-body-' + type);
+  const tbody      = document.getElementById('view-body-' + type);
   const summaryBar = document.getElementById('view-summary-' + type);
   if (!tbody) return;
 
@@ -342,20 +335,19 @@ function renderDataView(type) {
 
   let totalIncome = 0, totalExpense = 0;
 
-  // Action buttons HTML helper
   const actionBtns = (t, i) => `
     <div class="action-cell">
-      <button class="btn-edit"  onclick="openEditModal('${t}',${i})"  title="সম্পাদনা করুন">✏️</button>
-      <button class="btn-delete" onclick="askDelete('${t}',${i})" title="মুছুন">🗑️</button>
+      <button class="btn-edit"   onclick="openEditModal('${t}',${i})"  title="সম্পাদনা করুন">✏️</button>
+      <button class="btn-delete" onclick="askDelete('${t}',${i})"      title="মুছুন">🗑️</button>
     </div>`;
 
   tbody.innerHTML = entries.map((e, i) => {
-    const inc = parseFloat(e.income || 0);
+    const inc = parseFloat(e.income  || 0);
     const exp = parseFloat(e.expense || 0);
-    totalIncome += inc;
+    totalIncome  += inc;
     totalExpense += exp;
     const rowClass = i % 2 === 1 ? 'even' : '';
-    const dateStr = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('bn-BD') : '—';
+    const dateStr  = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('bn-BD') : '—';
 
     let cells = '';
     switch (type) {
@@ -450,7 +442,6 @@ function renderDataView(type) {
     </tr>`;
   }).join('');
 
-  // Summary bar
   const profit = totalIncome - totalExpense;
   if (summaryBar) {
     summaryBar.innerHTML = `
@@ -490,26 +481,54 @@ function filterTable(type, query) {
 }
 
 // ====================================================
-// DELETE
+// DELETE  ← সবচেয়ে গুরুত্বপূর্ণ অংশ
 // ====================================================
 function askDelete(type, index) {
-  pendingDeleteType = type;
+  pendingDeleteType  = type;
   pendingDeleteIndex = index;
   document.getElementById('delete-modal').classList.add('active');
 }
+
 function closeDeleteModal() {
   document.getElementById('delete-modal').classList.remove('active');
-  pendingDeleteType = null;
+  pendingDeleteType  = null;
   pendingDeleteIndex = null;
 }
+
 function confirmDelete() {
   if (pendingDeleteType === null || pendingDeleteIndex === null) return;
+
+  // মুছে ফেলার আগে entry টা সংরক্ষণ করো (Google Sheet call-এর জন্য দরকার)
+  const deletedEntry = farmData[pendingDeleteType][pendingDeleteIndex];
+  const deletedType  = pendingDeleteType;
+
+  // localStorage থেকে মুছো
   farmData[pendingDeleteType].splice(pendingDeleteIndex, 1);
   saveToLocalStorage();
+
+  // Modal বন্ধ করো + UI আপডেট
   closeDeleteModal();
-  renderDataView(pendingDeleteType);
+  renderDataView(deletedType);
   updateDashboardStats();
-  showToast('🗑️ এন্ট্রি মুছে ফেলা হয়েছে', 'success');
+  showToast('🗑️ মুছে ফেলা হচ্ছে...', 'success');
+
+  // Google Sheet থেকেও মুছো
+  if (CONFIG.scriptUrl && deletedEntry && deletedEntry._id) {
+    sheetDelete(deletedType, deletedEntry._id)
+      .then(r => {
+        if (r.success) {
+          showToast('✅ Google Sheet থেকেও মুছে ফেলা হয়েছে!', 'success');
+        } else {
+          showToast('⚠️ লোকাল থেকে মুছেছে। Sheet সমস্যা: ' + r.message, 'error');
+        }
+      })
+      .catch(err => {
+        showToast('⚠️ লোকাল থেকে মুছেছে। ইন্টারনেট চেক করুন।', 'error');
+        console.error('Sheet delete error:', err);
+      });
+  } else {
+    showToast('🗑️ এন্ট্রি মুছে ফেলা হয়েছে।', 'success');
+  }
 }
 
 // ====================================================
@@ -520,29 +539,29 @@ function exportCSV(type) {
   if (entries.length === 0) { showToast('⚠️ কোনো ডেটা নেই', 'error'); return; }
 
   const headers = {
-    cow: ['তারিখ','গরুর সংখ্যা','দুধ উৎপাদন','দুধ বিক্রয়','খাবার খরচ','চিকিৎসা','কেনা','কেনার মূল্য','বিক্রি','বিক্রির মূল্য','আয়','ব্যয়','মন্তব্য'],
-    goat: ['তারিখ','ছাগলের সংখ্যা','খাবার খরচ','চিকিৎসা','কেনা','কেনার মূল্য','বিক্রি','বিক্রির মূল্য','আয়','ব্যয়','মন্তব্য'],
-    chicken: ['তারিখ','মুরগির সংখ্যা','ডিম উৎপাদন','ডিম বিক্রয়','খাবার','ওষুধ','বিক্রি','বিক্রির মূল্য','আয়','ব্যয়','মন্তব্য'],
-    fish: ['তারিখ','পুকুর/ঘের','প্রজাতি','পরিমাণ','খাবার/ওষুধ','বিক্রয় (কেজি)','বিক্রয় মূল্য','আয়','ব্যয়','মন্তব্য'],
+    cow:         ['তারিখ','গরুর সংখ্যা','দুধ উৎপাদন','দুধ বিক্রয়','খাবার খরচ','চিকিৎসা','কেনা','কেনার মূল্য','বিক্রি','বিক্রির মূল্য','আয়','ব্যয়','মন্তব্য'],
+    goat:        ['তারিখ','ছাগলের সংখ্যা','খাবার খরচ','চিকিৎসা','কেনা','কেনার মূল্য','বিক্রি','বিক্রির মূল্য','আয়','ব্যয়','মন্তব্য'],
+    chicken:     ['তারিখ','মুরগির সংখ্যা','ডিম উৎপাদন','ডিম বিক্রয়','খাবার','ওষুধ','বিক্রি','বিক্রির মূল্য','আয়','ব্যয়','মন্তব্য'],
+    fish:        ['তারিখ','পুকুর/ঘের','প্রজাতি','পরিমাণ','খাবার/ওষুধ','বিক্রয় (কেজি)','বিক্রয় মূল্য','আয়','ব্যয়','মন্তব্য'],
     agriculture: ['তারিখ','ফসল','জমি (বিঘা)','বীজ','সার','সেচ','শ্রমিক','উৎপাদন (মণ)','বিক্রয়','আয়','ব্যয়','মন্তব্য'],
-    other: ['তারিখ','ধরন','বিবরণ','পরিমাণ','আয়','ব্যয়','মন্তব্য']
+    other:       ['তারিখ','ধরন','বিবরণ','পরিমাণ','আয়','ব্যয়','মন্তব্য']
   };
 
   const rowFn = {
-    cow: e => [e.date,e.cow_count,e.milk_production,e.milk_price,e.food_cost,e.medicine_cost,e.buy_count,e.buy_price,e.sell_count,e.sell_price,e.income,e.expense,e.notes],
-    goat: e => [e.date,e.goat_count,e.food_cost,e.medicine_cost,e.buy_count,e.buy_price,e.sell_count,e.sell_price,e.income,e.expense,e.notes],
-    chicken: e => [e.date,e.chicken_count,e.eggs_produced,e.egg_price,e.food_cost,e.medicine_cost,e.sell_count,e.sell_price,e.income,e.expense,e.notes],
-    fish: e => [e.date,e.pond_name,e.fish_species,e.fish_quantity,e.food_medicine_cost,e.sell_quantity,e.sell_price,e.income,e.expense,e.notes],
+    cow:         e => [e.date,e.cow_count,e.milk_production,e.milk_price,e.food_cost,e.medicine_cost,e.buy_count,e.buy_price,e.sell_count,e.sell_price,e.income,e.expense,e.notes],
+    goat:        e => [e.date,e.goat_count,e.food_cost,e.medicine_cost,e.buy_count,e.buy_price,e.sell_count,e.sell_price,e.income,e.expense,e.notes],
+    chicken:     e => [e.date,e.chicken_count,e.eggs_produced,e.egg_price,e.food_cost,e.medicine_cost,e.sell_count,e.sell_price,e.income,e.expense,e.notes],
+    fish:        e => [e.date,e.pond_name,e.fish_species,e.fish_quantity,e.food_medicine_cost,e.sell_quantity,e.sell_price,e.income,e.expense,e.notes],
     agriculture: e => [e.date,e.crop_name,e.land_size,e.seed_cost,e.fertilizer_cost,e.irrigation_cost,e.labor_cost,e.production,e.sell_price,e.income,e.expense,e.notes],
-    other: e => [e.date,e.type,e.description,e.amount,e.income,e.expense,e.notes]
+    other:       e => [e.date,e.type,e.description,e.amount,e.income,e.expense,e.notes]
   };
 
   const csvRows = [headers[type], ...entries.map(rowFn[type])];
   const csvContent = '\uFEFF' + csvRows.map(r => r.map(c => `"${(c||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
   a.download = `${CATEGORIES[type].label}_${new Date().toLocaleDateString('en-CA')}.csv`;
   a.click();
   URL.revokeObjectURL(url);
@@ -583,7 +602,7 @@ function loadSettings() {
   const el = document.getElementById('script-url');
   if (el && CONFIG.scriptUrl) el.value = CONFIG.scriptUrl;
 }
-function openSettings() { document.getElementById('settings-modal').classList.add('active'); }
+function openSettings()  { document.getElementById('settings-modal').classList.add('active'); }
 function closeSettings() { document.getElementById('settings-modal').classList.remove('active'); }
 function saveSettings() {
   const url = document.getElementById('script-url').value.trim();
@@ -600,30 +619,32 @@ function saveSettings() {
 // ====================================================
 function submitForm(event, type) {
   event.preventDefault();
-  const form = event.target;
+  const form      = event.target;
   const submitBtn = document.getElementById('submit-' + type);
   const btnText   = submitBtn.querySelector('.btn-text');
   const btnLoader = submitBtn.querySelector('.btn-loader');
   const rowData   = collectFormData(type, form);
 
-  submitBtn.disabled = true;
+  submitBtn.disabled    = true;
   btnText.style.display = 'none';
   btnLoader.style.display = 'inline';
 
-  farmData[type].unshift({ ...rowData, _timestamp: new Date().toISOString() });
+  // প্রতিটি entry-তে unique _id যোগ করো
+  const entry = { ...rowData, _id: generateId(), _timestamp: new Date().toISOString() };
+  farmData[type].unshift(entry);
   saveToLocalStorage();
   updateDashboardStats();
 
   const finish = () => {
-    submitBtn.disabled = false;
-    btnText.style.display = 'inline';
+    submitBtn.disabled      = false;
+    btnText.style.display   = 'inline';
     btnLoader.style.display = 'none';
     form.reset();
     initDateInputs();
   };
 
   if (CONFIG.scriptUrl) {
-    sendToGoogleSheets(type, rowData)
+    sheetAdd(type, rowData, entry._id)
       .then(r => showToast(r.success ? '✅ ' + r.message : '⚠️ স্থানীয়ভাবে সংরক্ষিত। শিটে সমস্যা: ' + r.message, r.success ? 'success' : 'error'))
       .catch(() => showToast('⚠️ স্থানীয়ভাবে সংরক্ষিত। ইন্টারনেট চেক করুন।', 'error'))
       .finally(finish);
@@ -637,7 +658,7 @@ function submitForm(event, type) {
 // COLLECT FORM DATA
 // ====================================================
 function collectFormData(type, form) {
-  const fd = new FormData(form);
+  const fd  = new FormData(form);
   const get = n => fd.get(n) || '';
   const date = get('date');
   switch (type) {
@@ -646,37 +667,37 @@ function collectFormData(type, form) {
         milk_price: get('milk_price'), food_cost: get('food_cost'), medicine_cost: get('medicine_cost'),
         buy_count: get('buy_count'), buy_price: get('buy_price'), sell_count: get('sell_count'),
         sell_price: get('sell_price'), notes: get('notes'),
-        income: pf(get('milk_price')) + pf(get('sell_price')),
-        expense: pf(get('food_cost')) + pf(get('medicine_cost')) + pf(get('buy_price')) };
+        income:  pf(get('milk_price')) + pf(get('sell_price')),
+        expense: pf(get('food_cost'))  + pf(get('medicine_cost')) + pf(get('buy_price')) };
     case 'goat':
       return { date, goat_count: get('goat_count'), food_cost: get('food_cost'),
         medicine_cost: get('medicine_cost'), buy_count: get('buy_count'), buy_price: get('buy_price'),
         sell_count: get('sell_count'), sell_price: get('sell_price'), notes: get('notes'),
-        income: pf(get('sell_price')),
+        income:  pf(get('sell_price')),
         expense: pf(get('food_cost')) + pf(get('medicine_cost')) + pf(get('buy_price')) };
     case 'chicken':
       return { date, chicken_count: get('chicken_count'), eggs_produced: get('eggs_produced'),
         egg_price: get('egg_price'), food_cost: get('food_cost'), medicine_cost: get('medicine_cost'),
         sell_count: get('sell_count'), sell_price: get('sell_price'), notes: get('notes'),
-        income: pf(get('egg_price')) + pf(get('sell_price')),
+        income:  pf(get('egg_price')) + pf(get('sell_price')),
         expense: pf(get('food_cost')) + pf(get('medicine_cost')) };
     case 'fish':
       return { date, pond_name: get('pond_name'), fish_species: get('fish_species'),
         fish_quantity: get('fish_quantity'), food_medicine_cost: get('food_medicine_cost'),
         sell_quantity: get('sell_quantity'), sell_price: get('sell_price'), notes: get('notes'),
-        income: pf(get('sell_price')), expense: pf(get('food_medicine_cost')) };
+        income:  pf(get('sell_price')), expense: pf(get('food_medicine_cost')) };
     case 'agriculture':
       return { date, crop_name: get('crop_name'), land_size: get('land_size'),
         seed_cost: get('seed_cost'), fertilizer_cost: get('fertilizer_cost'),
         irrigation_cost: get('irrigation_cost'), labor_cost: get('labor_cost'),
         production: get('production'), sell_price: get('sell_price'), notes: get('notes'),
-        income: pf(get('sell_price')),
+        income:  pf(get('sell_price')),
         expense: pf(get('seed_cost')) + pf(get('fertilizer_cost')) + pf(get('irrigation_cost')) + pf(get('labor_cost')) };
     case 'other':
       const isIncome = get('type') === 'আয়';
       return { date, type: get('type'), description: get('description'),
         amount: get('amount'), notes: get('notes'),
-        income: isIncome ? pf(get('amount')) : 0,
+        income:  isIncome ? pf(get('amount')) : 0,
         expense: !isIncome ? pf(get('amount')) : 0 };
     default: return {};
   }
@@ -684,7 +705,7 @@ function collectFormData(type, form) {
 function pf(v) { return parseFloat(v || 0); }
 
 // ====================================================
-// BUILD SHEET ROW
+// BUILD SHEET ROW  (data array for Google Sheet)
 // ====================================================
 function buildSheetRow(type, data) {
   switch (type) {
@@ -699,22 +720,51 @@ function buildSheetRow(type, data) {
 }
 
 // ====================================================
-// GOOGLE SHEETS
+// GOOGLE SHEETS API CALLS
 // ====================================================
-async function sendToGoogleSheets(type, data) {
-  const response = await fetch(CONFIG.scriptUrl, {
+
+// নতুন row যোগ করো
+async function sheetAdd(type, data, id) {
+  const res = await fetch(CONFIG.scriptUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ type, data: buildSheetRow(type, data) })
+    body: JSON.stringify({
+      action: 'add',
+      type:   type,
+      data:   buildSheetRow(type, data),
+      id:     id
+    })
   });
-  return await response.json();
+  return await res.json();
 }
 
-// ====================================================
-// LOCAL STORAGE
-// ====================================================
-function saveToLocalStorage() {
-  localStorage.setItem(STORE_KEY, JSON.stringify(farmData));
+// row মুছে ফেলো (id দিয়ে খুঁজে)
+async function sheetDelete(type, id) {
+  const res = await fetch(CONFIG.scriptUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({
+      action: 'delete',
+      type:   type,
+      id:     id
+    })
+  });
+  return await res.json();
+}
+
+// row সম্পাদনা করো (id দিয়ে খুঁজে)
+async function sheetEdit(type, data, id) {
+  const res = await fetch(CONFIG.scriptUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({
+      action: 'edit',
+      type:   type,
+      data:   buildSheetRow(type, data),
+      id:     id
+    })
+  });
+  return await res.json();
 }
 
 // ====================================================
@@ -737,7 +787,7 @@ function updateDashboardStats() {
   });
 
   const profit = totalIncome - totalExpense;
-  setEl('dash-total-income', '৳ ' + formatNum(totalIncome));
+  setEl('dash-total-income',  '৳ ' + formatNum(totalIncome));
   setEl('dash-total-expense', '৳ ' + formatNum(totalExpense));
   const profitEl = document.getElementById('dash-total-profit');
   if (profitEl) {
@@ -761,8 +811,7 @@ function renderSummary() {
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   const thisYear  = `${now.getFullYear()}`;
   let grandIncome = 0, grandExpense = 0;
-  const chartLabels = [], chartIncomes = [], chartExpenses = [];
-  const breakdownData = [];
+  const chartLabels = [], chartIncomes = [], chartExpenses = [], breakdownData = [];
 
   Object.keys(CATEGORIES).forEach(type => {
     let income = 0, expense = 0, count = 0;
@@ -823,7 +872,7 @@ function renderCharts(labels, incomes, expenses, totalIncome, totalExpense) {
       data: {
         labels,
         datasets: [
-          { label: 'আয়', data: incomes, backgroundColor: 'rgba(46,160,67,0.7)', borderColor: '#2ea043', borderWidth: 1, borderRadius: 4 },
+          { label: 'আয়',  data: incomes,  backgroundColor: 'rgba(46,160,67,0.7)',  borderColor: '#2ea043', borderWidth: 1, borderRadius: 4 },
           { label: 'ব্যয়', data: expenses, backgroundColor: 'rgba(248,81,73,0.7)', borderColor: '#f85149', borderWidth: 1, borderRadius: 4 }
         ]
       },
@@ -858,7 +907,7 @@ function renderCharts(labels, incomes, expenses, totalIncome, totalExpense) {
 // UTILITIES
 // ====================================================
 function formatNum(n) { return Math.abs(parseFloat(n)||0).toLocaleString('bn-BD'); }
-function fmtMoney(v) { const n = parseFloat(v||0); return n ? '৳' + formatNum(n) : '—'; }
+function fmtMoney(v)  { const n = parseFloat(v||0); return n ? '৳' + formatNum(n) : '—'; }
 function setEl(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
 function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
