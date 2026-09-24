@@ -1320,3 +1320,82 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Setup Button (Topbar) ── */
+.setup-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, var(--green-primary), #1e7a32);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(46,160,67,0.35);
+}
+.setup-btn:hover {
+  background: linear-gradient(135deg, var(--green-light), var(--green-primary));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(46,160,67,0.45);
+}
+
+/* ── Setup Banner (below topbar) ── */
+.setup-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, rgba(248,81,73,0.15), rgba(248,81,73,0.08));
+  border-bottom: 1px solid rgba(248,81,73,0.3);
+  color: #f85149;
+  font-size: 0.88rem;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.setup-banner button {
+  padding: 5px 14px;
+  background: var(--green-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.setup-banner button:hover { background: var(--green-light); }
+.setup-banner.hidden { display: none; }
+
+/* ── btn-primary (settings modal save button) ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, var(--green-primary), #1e7a32);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(46,160,67,0.3);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--green-light), var(--green-primary));
+  transform: translateY(-1px);
+}
+
+/* ── bg-tertiary variable ── */
+:root { --bg-tertiary: #21262d; }
+
